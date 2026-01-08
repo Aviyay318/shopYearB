@@ -6,11 +6,10 @@ import org.example.shopyearb.Entity.Product;
 import jakarta.annotation.PostConstruct;
 import org.example.shopyearb.Entity.User;
 import org.example.shopyearb.Response.BasicResponse;
-import org.example.shopyearb.Utils.Construct;
+import org.example.shopyearb.Utils.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,6 +28,23 @@ public class Controller {
     @GetMapping("/get-products-by-category-id")
     public List<Product> getProductByCategory(int categoryId){
       return this.dbManager.getProductsByCategoryId(categoryId);
+    }
+
+    @PostMapping("/add-product")
+    public BasicResponse addProduct(@RequestBody Product product){
+         boolean successes = false;
+         Integer errorCode = Constant.ERROR_ADD_PRODUCT;
+        if (product!=null){
+            if (product.getName()!=null){
+                if (!this.dbManager.getProductByName(product.getName())){
+                    this.dbManager.addProduct(product);
+                    successes = true;
+                    errorCode = null;
+                }
+
+            }
+        }
+        return new BasicResponse(successes,errorCode);
     }
 
 
@@ -72,7 +88,7 @@ public class Controller {
     @PostMapping ("/register-user")
     public BasicResponse register(@RequestBody User user){
         boolean successes =  false;
-        Integer errorCode = Construct.ERROR_REGISTER;
+        Integer errorCode = Constant.ERROR_REGISTER;
      if (user!=null){
          User dbUser = this.dbManager.getUserByUsername(user.getName());
          if (dbUser == null){

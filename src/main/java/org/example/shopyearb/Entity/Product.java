@@ -5,12 +5,40 @@ private int id;
 private double price;
 private String name;
 private String color;
+private String url;
+private Category category;
 
-    public Product(int id, double price, String name, String color) {
+    public Product(int id, double price, String name, String color,String url) {
         this.id = id;
         this.price = price;
         this.name = name;
         this.color = color;
+        this.url = url;
+    }
+
+    public Product(int id, double price, String name, String color, String url, Category category) {
+        this.id = id;
+        this.price = price;
+        this.name = name;
+        this.color = color;
+        this.url = url;
+        this.category = category;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public int getId() {

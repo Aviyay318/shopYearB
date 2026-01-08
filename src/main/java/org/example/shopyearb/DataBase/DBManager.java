@@ -55,7 +55,7 @@ public class DBManager {
         while (resultSet.next())
         {
             Product product = new Product(resultSet.getInt("id"),
-                    resultSet.getInt("price"),resultSet.getString("name"),resultSet.getString("color"));
+                    resultSet.getInt("price"),resultSet.getString("name"),resultSet.getString("color"),resultSet.getString("url"));
             products.add(product);
         }
       }catch (SQLException e){
@@ -129,5 +129,36 @@ public class DBManager {
 
        }
        return user;
+    }
+
+    public boolean getProductByName(String name) {
+        boolean isExist = true;
+        String sql = "SELECT name FROM products WHERE name = ?";
+        try(PreparedStatement ps = this.connection.prepareStatement(sql)){
+            ps.setString(1,name);
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()){
+                isExist = false;
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return isExist;
+    }
+
+    public void addProduct(Product product) {
+        String sql = "INSERT INTO products (name,color,price,url,category_id) VALUE(?, ?, ?, ?, ?)";
+        try(PreparedStatement ps = connection.prepareStatement(sql)){
+            ps.setString(1,product.getName());
+            ps.setString(2,product.getColor());
+            ps.setInt(3,(int)product.getPrice());
+            ps.setString(4,product.getUrl());
+            ps.setInt(5,product.getCategory().getId());
+            ps.executeUpdate();
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
     }
 }
