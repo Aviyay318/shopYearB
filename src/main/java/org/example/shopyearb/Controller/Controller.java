@@ -6,7 +6,9 @@ import org.example.shopyearb.Entity.Product;
 import jakarta.annotation.PostConstruct;
 import org.example.shopyearb.Entity.User;
 import org.example.shopyearb.Response.BasicResponse;
+import org.example.shopyearb.Response.LoginResponse;
 import org.example.shopyearb.Utils.Constant;
+import org.example.shopyearb.Utils.PasswordHashUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,30 @@ public class Controller {
 
     @Autowired
     private DBManager dbManager;
+
+
+
+    @GetMapping("/get-all-categories")
+    public List<Category> getAllCategories(){
+        return this.dbManager.getAllCategories2();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @RequestMapping("/hello")
+    public String sayHello1(){
+        return "sayHello";
+    }
 
     @GetMapping("/get-categories")
     public List<Category> getCategories(){
@@ -86,18 +112,32 @@ public class Controller {
 
     @PostMapping ("/register-user")
     public BasicResponse register(@RequestBody User user){
-        boolean successes =  false;
+        boolean successes = false;
         Integer errorCode = Constant.ERROR_REGISTER;
-     if (user!=null){
-         User dbUser = this.dbManager.getUserByUsername(user.getName());
-         if (dbUser == null){
-             this.dbManager.insertUser(user);
-             successes = true;
-             errorCode = null;
-         }
-     }
-      return new BasicResponse(successes,errorCode);
+       if (user!=null && user.getUsername()!=null){
+           if (!this.dbManager.isUserExist(user.getUsername())){
+                user.setPassword(PasswordHashUtil.hashPassword(user.getPassword()+user.getUsername()));
+                if (this.dbManager.addUser(user)){
+                    successes = true;
+                    errorCode = null;
+                }
+           }
+       }
+       return new BasicResponse(successes,errorCode);
     }
+
+    @PostMapping("/login")
+    public LoginResponse login(String username, String password){
+        boolean successes = false;
+        Integer errorCode = Constant.ERROR_LOGIN;
+        String token = PasswordHashUtil.hashPassword(password + username);
+        if (this.dbManager.getUserByUsernameAndPassword(username,token)){
+            successes  = true;
+            errorCode = null;
+        }
+        return new LoginResponse(successes,errorCode,token);
+    }
+
 
 
 

@@ -90,7 +90,7 @@ public class DBManager {
     public void insertUser(User user) {
         String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, user.getName());
+            statement.setString(1, user.getUsername());
             statement.setString(2, user.getPassword());
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -98,38 +98,10 @@ public class DBManager {
         }
     }
 
-    public List<User> getAllUsers() {
-        List<User> users = new ArrayList<>();
-        try (Statement statement = connection.createStatement();
-             ResultSet rs = statement.executeQuery("SELECT * FROM users")) {
-
-            while (rs.next()) {
-                users.add(new User(
-                        rs.getString("username"),
-                        rs.getString("password")
-                ));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return users;
-    }
 
 
-    public User getUserByUsername(String username){
-        System.out.println(username);
-        User user = null;
-       try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM users WHERE username = ?")){
-           preparedStatement.setString(1,username);
-           ResultSet  resultSet= preparedStatement.executeQuery();
-           if (resultSet.next()){
-               user = new User(resultSet.getString("username"),resultSet.getString("password"));
-           }
-       }catch (SQLException e){
 
-       }
-       return user;
-    }
+
 
 public boolean isProductExist(String name){
         boolean isExist = false;
@@ -163,4 +135,68 @@ public boolean addProduct(Product product){
         return successes;
 }
 
+    public List<Category> getAllCategories2() {
+        List<Category> categories = new ArrayList<>();
+        String sql = "SELECT * FROM categories";
+        try(PreparedStatement ps = this.connection.prepareStatement(sql)){
+            ResultSet resultSet = ps.executeQuery();
+            while (resultSet.next()){
+                Category category = new Category(resultSet.getInt("id"),resultSet.getString("name"));
+                categories.add(category);
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return categories;
+    }
+
+    public boolean isUserExist(String username) {
+        boolean isUserExist = false;
+        String sql = "SELECT username FROM users WHERE username = ?";
+        try(PreparedStatement ps =  this.connection.prepareStatement(sql)){
+            ps.setString(1, username);
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()){
+                isUserExist = true;
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return isUserExist;
+    }
+
+    public boolean addUser(User user) {
+        boolean successes = true;
+       String sql = "INSERT INTO users(username,password_hash,phone_number,email,gender) VALUES(?, ?, ?, ?, ?)" ;
+       try(PreparedStatement ps = this.connection.prepareStatement(sql)){
+         ps.setString(1, user.getUsername());
+         ps.setString(2, user.getPassword());
+         ps.setString(3, user.getPhoneNumber());
+         ps.setString(4,user.getEmail());
+         ps.setString(5, user.getGender());
+         ps.executeUpdate();
+
+       }catch (SQLException e){
+           successes = false;
+           e.printStackTrace();
+       }
+       return successes;
+    }
+
+    public boolean getUserByUsernameAndPassword(String username, String password) {
+        boolean successes = false;
+        String sql = "SELECT * FROM users WHERE username= ? AND password_hash = ?";
+        try(PreparedStatement ps = this.connection.prepareStatement(sql)){
+            ps.setString(1,username);
+            ps.setString(2,password);
+            ResultSet resultSet = ps.executeQuery();
+            if (resultSet.next()){
+                successes = true;
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return successes;
+    }
 }
