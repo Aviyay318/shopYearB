@@ -4,6 +4,12 @@ import jakarta.annotation.PostConstruct;
 import org.example.shopyearb.Entity.Category;
 import org.example.shopyearb.Entity.Product;
 import org.example.shopyearb.Entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
@@ -19,6 +25,19 @@ public class DBManager {
 
     private Connection connection;
 
+    @Autowired
+    private CacheManager cacheManager;
+
+//    public void printCache(String cacheName) {
+//        Cache cache = cacheManager.getCache(cacheName);
+//        if (cache instanceof CaffeineCache caffeineCache) {
+//            caffeineCache.getNativeCache().asMap().forEach(
+//                    (key, value) -> System.out.println(key + " -> " + value)
+//            );
+//        }
+//    }
+
+
     @PostConstruct
     public void connect() {
         try {
@@ -29,6 +48,7 @@ public class DBManager {
         }
     }
 
+    @Cacheable("categories")
    public List<Category> getAllCategories(){
         List<Category> categories = new ArrayList<>();
         String sql = "SELECT * FROM categories";
@@ -44,7 +64,10 @@ public class DBManager {
         }
         return categories;
    }
-
+    @Cacheable(
+            value = "productsByCategory",
+            key = "#categoryId"
+    )
    public List<Product> getProductsByCategoryId (int categoryId){
       List<Product> products = new ArrayList<>();
       String sql = "SELECT * FROM products WHERE category_id = ?";
@@ -101,7 +124,10 @@ public class DBManager {
 
 
 
-
+    @Cacheable(
+            value = "productExists",
+            key = "#name"
+    )
 
 public boolean isProductExist(String name){
         boolean isExist = false;
@@ -117,7 +143,10 @@ public boolean isProductExist(String name){
       }
       return isExist;
 }
-
+    @CacheEvict(
+            value = "productsByCategory",
+            key = "#product.category"
+    )
 public boolean addProduct(Product product){
         boolean successes = true;
         String sql = "INSERT INTO products(name, price,color,url,category_id) VALUES(?, ?, ?, ?, ?) ";

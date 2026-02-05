@@ -3,10 +3,12 @@ package org.example.shopyearb;
 import org.example.shopyearb.Entity.Product;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 import java.util.Date;
 
 @SpringBootApplication
+@EnableCaching
 public class ShopYearBApplication {
 
     public static void main(String[] args) {
