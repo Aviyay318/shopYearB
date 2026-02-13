@@ -1,6 +1,7 @@
 package org.example.shopyearb.DataBase;
 
 import jakarta.annotation.PostConstruct;
+import org.example.shopyearb.Entity.Author;
 import org.example.shopyearb.Entity.Category;
 import org.example.shopyearb.Entity.Product;
 import org.example.shopyearb.Entity.User;
@@ -228,4 +229,54 @@ public boolean addProduct(Product product){
         }
         return successes;
     }
+
+
+
+
+    public boolean isAuthorExist(String id){
+        boolean isAuthorExist = false;
+        String sql = "SELECT id FROM authors WHERE id = ? ";
+        try(PreparedStatement ps = this.connection.prepareStatement(sql)){
+           ps.setString(1,id);
+           ResultSet resultSet = ps.executeQuery();
+           if (resultSet.next()){
+               isAuthorExist = true;
+           }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    public boolean addAuthor(Author author){
+        boolean successes = true;
+        String sql = "INSERT INTO authors(id,name,password) VALUES(?, ?, ?)";
+        try(PreparedStatement ps = this.connection.prepareStatement(sql)){
+            ps.setString(1,author.getId());
+            ps.setString(2,author.getName());
+            ps.setString(3,author.getPassword());
+            ps.executeUpdate();
+
+        }catch (SQLException e){
+            successes = false;
+            e.printStackTrace();
+        }
+        return successes;
+    }
+
+    public int getAmountOfBooks(String authorId){
+        int amountOfBooks = 0;
+     String sql = "SELECT COUNT(*) FROM books WHERE authorId = ?";
+     try(PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
+         preparedStatement.setString(1,authorId);
+         ResultSet resultSet = preparedStatement.executeQuery();
+         if (resultSet.next()){
+             amountOfBooks = resultSet.getInt(1);
+         }
+     }catch (SQLException e){
+         e.printStackTrace();
+     }
+     return amountOfBooks;
+}
+
 }

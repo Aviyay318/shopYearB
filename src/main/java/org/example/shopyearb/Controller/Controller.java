@@ -1,10 +1,8 @@
 package org.example.shopyearb.Controller;
 
 import org.example.shopyearb.DataBase.DBManager;
-import org.example.shopyearb.Entity.Category;
-import org.example.shopyearb.Entity.Product;
+import org.example.shopyearb.Entity.*;
 import jakarta.annotation.PostConstruct;
-import org.example.shopyearb.Entity.User;
 import org.example.shopyearb.Response.BasicResponse;
 import org.example.shopyearb.Response.LoginResponse;
 import org.example.shopyearb.Utils.Constant;
@@ -13,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @RestController
 public class Controller {
@@ -73,28 +72,58 @@ public class Controller {
   }
 
 
+@PostMapping("/add-author")
+public BasicResponse addAuthor(@RequestBody Author author){
+     boolean successes = false;
+     Integer errorCode = Constant.ADD_AUTHOR;
+        if (author!=null){
+            if (!this.dbManager.isAuthorExist(author.getId())){
+                author.setPassword(PasswordHashUtil.hashPassword(author.getName()+author.getPassword()));
+               if (this.dbManager.addAuthor(author)){
+                   successes = true;
+                   errorCode = null;
+               }
+
+            }
+        }
+        return new BasicResponse(successes,errorCode);
+
+}
 
 
 
+//@PostMapping("/add-book")
+//public BasicResponse addBook(@RequestHeader("Authorization") String token
+//        ,@RequestBody Book book) {
+//   BasicResponse basicResponse = new BasicResponse(false,null);
+//    Author author = this.dbManager.getAuthorByToken(token);
+//    if (author!=null&&author.getId().equals(book.getAuthorId())){
+//        if (checkRules(book)){
+//            if (this.dbManager.addBook(book)){
+//               basicResponse.setSuccesses(true);
+//            }
+//        }
+//    }
+//return basicResponse;
+//}
+
+//בדיקות של חוקים מכרז ->
+//הספר לפחות באורך של 130 דפים
+//    השם של הספר מכיל את אחד מהתווים הבאים ABG
+//    העלות להשכרה של הספר לא עולה על 30 שקלים
+//    ואין לו יותר מ5 ספרים בספרייה
+//3)	ובדיקה שהספר לא קיים
 
 
+    private boolean checkRules(Book book) {
+      boolean isValidate = false;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      if (book.getLength()>=130&& Pattern.compile("ABG").matcher(book.getName()).find()
+      &&book.getCost()<=30&&this.dbManager.getAmountOfBooks(book.getAuthorId())<5){
+       isValidate = true;
+      }
+        return isValidate;
+    }
 
 
     @PostConstruct
