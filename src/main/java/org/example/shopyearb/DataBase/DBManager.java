@@ -1,10 +1,7 @@
 package org.example.shopyearb.DataBase;
 
 import jakarta.annotation.PostConstruct;
-import org.example.shopyearb.Entity.Author;
-import org.example.shopyearb.Entity.Category;
-import org.example.shopyearb.Entity.Product;
-import org.example.shopyearb.Entity.User;
+import org.example.shopyearb.Entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -278,5 +275,46 @@ public boolean addProduct(Product product){
      }
      return amountOfBooks;
 }
+//    int age;
+//    private String name;
+//    private List<String> flavors;
+//    private String userChocolate;
+//    private int dayesOfIceCream;
+//    private boolean isLikesIceCream;
 
+
+public  boolean addUserIceCream(UserRequest user){
+        boolean successes =true;
+   String sql = "INSERT INTO users(age,name,userChocolate,dayesOfIceCream,isLikesIceCream) VALUES(?, ?, ?, ?, ?)";
+   try(PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
+       preparedStatement.setInt(1,user.getAge());
+       preparedStatement.setString(2,user.getName());
+       preparedStatement.setString(3,user.getUserChocolate());
+       preparedStatement.setInt(4,user.getDayesOfIceCream());
+       preparedStatement.setBoolean(5,user.isLikesIceCream());
+       preparedStatement.executeUpdate();
+
+
+   }catch (SQLException e){
+       successes = false;
+       e.printStackTrace();
+   }
+   return successes;
+}
+
+    public boolean isUserIceCreamExist(UserRequest user) {
+        boolean isUserIceCreamExist = false;
+        String sql = "SELECT name FROM users WHERE name = ?";
+        try(PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
+            preparedStatement.setString(1, user.getName());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                isUserIceCreamExist = true;
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return isUserIceCreamExist;
+    }
 }
