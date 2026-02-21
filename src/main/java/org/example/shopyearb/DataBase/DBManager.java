@@ -317,4 +317,27 @@ public  boolean addUserIceCream(UserRequest user){
         }
         return isUserIceCreamExist;
     }
+
+    private int id;
+    private String name;
+    private double price;
+    private int amount;
+
+
+    public List<Product1> getAllProducts(){
+        List<Product1> product1List = new ArrayList<>();
+        String sql = "SELECT id,name,price,amount FROM products";
+        try(PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
+            ResultSet resultSet = preparedStatement.executeQuery();
+                    while (resultSet.next()){
+                        Product1 p  = new Product1(resultSet.getInt("id"),resultSet.getString("name"),resultSet.getDouble("price"),resultSet.getInt("amount"));
+                        product1List.add(p);
+                    }
+
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return product1List;
+    }
 }
